@@ -9,10 +9,18 @@ const products = require('../data/products.json');
 const CATEGORY_KEYWORDS = {
   Smartphones: ['phone', 'smartphone', 'mobile', 'cell', 'handset', 'android', 'iphone'],
   Laptops: ['laptop', 'notebook', 'macbook', 'chromebook', 'computer', 'pc'],
-  Shoes: ['shoe', 'shoes', 'sneaker', 'sneakers', 'boot', 'boots', 'sandal', 'sandals', 'footwear', 'running shoe'],
-  Clothing: ['shirt', 'tshirt', 't-shirt', 'jeans', 'dress', 'jacket', 'hoodie', 'kurti', 'clothing', 'clothes', 'wear', 'fashion', 'polo'],
-  'Home Appliances': ['tv', 'television', 'ac', 'air conditioner', 'washing machine', 'microwave', 'oven', 'fan', 'vacuum', 'heater', 'air fryer', 'appliance', 'fridge', 'refrigerator'],
-  Accessories: ['headphone', 'headphones', 'earbuds', 'earphone', 'watch', 'smartwatch', 'speaker', 'mouse', 'keyboard', 'powerbank', 'power bank', 'kindle', 'ereader'],
+  "Men's Shoes": ["men's shoes", "mens shoes", "men shoe", "men sneaker", "men boot", "men sandal", "men's footwear", "mens footwear"],
+  "Women's Shoes": ["women's shoes", "womens shoes", "women shoe", "women sneaker", "women heel", "women sandal", "women's footwear", "womens footwear", "ladies shoes", "ladies footwear"],
+  "Kids' Shoes": ["kids shoes", "kids' shoes", "children shoes", "child shoe", "kids footwear", "kids sneaker", "school shoes"],
+  "Men's Clothing": ["men's clothing", "mens clothing", "men shirt", "men jeans", "men jacket", "men hoodie", "men blazer", "men trousers", "men chinos", "men's fashion", "mens wear"],
+  "Women's Clothing": ["women's clothing", "womens clothing", "women dress", "women kurti", "women saree", "women jeans", "women top", "women blazer", "ladies clothing", "ladies wear", "women's fashion", "lehenga", "salwar"],
+  "Kids' Clothing": ["kids clothing", "kids' clothing", "children clothing", "kids dress", "kids shirt", "kids uniform", "baby clothes", "boys clothing", "girls clothing", "kids wear"],
+  'Home Appliances': ['tv', 'television', 'ac', 'air conditioner', 'washing machine', 'microwave', 'oven', 'fan', 'vacuum', 'heater', 'air fryer', 'appliance', 'fridge', 'refrigerator', 'geyser', 'water purifier', 'mixer', 'grinder'],
+  Accessories: ['headphone', 'headphones', 'earbuds', 'earphone', 'watch', 'smartwatch', 'speaker', 'mouse', 'keyboard', 'powerbank', 'power bank', 'kindle', 'ereader', 'sunglasses', 'fitness band'],
+  'Bags & Luggage': ['bag', 'backpack', 'luggage', 'trolley', 'suitcase', 'handbag', 'messenger bag', 'travel bag'],
+  'Beauty & Personal Care': ['skincare', 'face wash', 'cream', 'trimmer', 'hair dryer', 'grooming', 'makeup', 'foundation', 'beauty', 'moisturizer', 'shampoo'],
+  'Sports & Fitness': ['sports', 'cricket', 'badminton', 'football', 'basketball', 'yoga', 'gym', 'treadmill', 'dumbbells', 'fitness equipment', 'racket', 'bat'],
+  'Toys & Games': ['toy', 'toys', 'lego', 'game', 'board game', 'doll', 'barbie', 'nerf', 'play-doh', 'puzzle', 'action figure'],
 };
 
 const PURPOSE_KEYWORDS = {
@@ -35,12 +43,38 @@ function extractIntent(query) {
 
   // Extract category
   let detectedCategory = null;
+  let detectedCategories = null; // for multi-match (e.g., generic "shoes")
   let categoryScore = 0;
   for (const [cat, keywords] of Object.entries(CATEGORY_KEYWORDS)) {
     for (const kw of keywords) {
       if (q.includes(kw) && kw.length > categoryScore) {
         detectedCategory = cat;
         categoryScore = kw.length;
+      }
+    }
+  }
+
+  // Generic term fallback: "shoes", "clothing", "footwear" without gender prefix
+  // should match ALL gendered subcategories
+  const GENERIC_MULTI_MAP = {
+    shoes: ["Men's Shoes", "Women's Shoes", "Kids' Shoes"],
+    shoe: ["Men's Shoes", "Women's Shoes", "Kids' Shoes"],
+    sneakers: ["Men's Shoes", "Women's Shoes", "Kids' Shoes"],
+    sneaker: ["Men's Shoes", "Women's Shoes", "Kids' Shoes"],
+    footwear: ["Men's Shoes", "Women's Shoes", "Kids' Shoes"],
+    sandals: ["Men's Shoes", "Women's Shoes", "Kids' Shoes"],
+    boots: ["Men's Shoes", "Women's Shoes", "Kids' Shoes"],
+    clothing: ["Men's Clothing", "Women's Clothing", "Kids' Clothing"],
+    clothes: ["Men's Clothing", "Women's Clothing", "Kids' Clothing"],
+    fashion: ["Men's Clothing", "Women's Clothing", "Kids' Clothing"],
+    wear: ["Men's Clothing", "Women's Clothing", "Kids' Clothing"],
+  };
+
+  if (!detectedCategory) {
+    for (const [term, cats] of Object.entries(GENERIC_MULTI_MAP)) {
+      if (q.includes(term)) {
+        detectedCategories = cats;
+        break;
       }
     }
   }
@@ -82,20 +116,26 @@ function extractIntent(query) {
   const allBrands = [...new Set(products.map(p => p.brand.toLowerCase()))];
   const detectedBrand = allBrands.find(b => q.includes(b.toLowerCase()));
 
-  return { category: detectedCategory, budget, purposes, brand: detectedBrand };
+  return { category: detectedCategory, categories: detectedCategories, budget, purposes, brand: detectedBrand };
 }
 
 // ── Product Scoring ───────────────────────────────────────────
 function scoreProduct(product, intent) {
   let score = 0;
 
-  // Category match — strict filtering: if a category is detected,
-  // only products in that category are considered
+  // Category match — strict filtering
   if (intent.category) {
     if (product.category === intent.category) {
       score += 30;
     } else {
       return -1; // Exclude entirely
+    }
+  } else if (intent.categories) {
+    // Multi-category match (generic "shoes" or "clothing")
+    if (intent.categories.includes(product.category)) {
+      score += 30;
+    } else {
+      return -1;
     }
   }
 
