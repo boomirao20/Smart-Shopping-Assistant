@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Smart Shopping Assistant — AI-powered product recommendations to help you discover, compare, and choose the best products.">
+  <title>Smart Shopping Assistant | AI-Powered Product Recommendations</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- ━━ Header ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+  <header class="app-header" id="app-header">
+    <div class="header-left">
+      <div class="logo" id="logo">
+        <span class="logo-icon">🛍️</span>
+        <div class="logo-text">
+          <h1>ShopSmart AI</h1>
+          <span class="tagline">Your Personal Shopping Expert</span>
+        </div>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="status-badge" id="status-badge">
+        <span class="status-dot"></span>
+        <span class="status-text">Connecting...</span>
+      </div>
+      <button class="btn-icon" id="btn-clear-chat" title="Clear chat">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="3 6 5 6 21 6"></polyline>
+          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- ━━ Main Chat Area ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+  <main class="chat-container" id="chat-container">
+
+    <!-- Welcome Screen -->
+    <div class="welcome-screen" id="welcome-screen">
+      <div class="welcome-hero">
+        <div class="welcome-icon-ring">
+          <span class="welcome-icon">🤖</span>
+        </div>
+        <h2>Welcome to <span class="gradient-text">ShopSmart AI</span></h2>
+        <p>I'm your personal shopping assistant. Ask me anything about products — I'll help you find the perfect match!</p>
+      </div>
+
+      <!-- Category Chips -->
+      <div class="category-section">
+        <h3>Browse by Category</h3>
+        <div class="category-chips" id="category-chips">
+          <button class="chip" data-category="Smartphones">📱 Smartphones</button>
+          <button class="chip" data-category="Laptops">💻 Laptops</button>
+          <button class="chip" data-category="Shoes">👟 Shoes</button>
+          <button class="chip" data-category="Clothing">👕 Clothing</button>
+          <button class="chip" data-category="Home Appliances">🏠 Home Appliances</button>
+          <button class="chip" data-category="Accessories">🎧 Accessories</button>
+        </div>
+      </div>
+
+      <!-- Quick Prompts -->
+      <div class="prompts-section">
+        <h3>Try asking me</h3>
+        <div class="prompt-grid" id="prompt-grid">
+          <button class="prompt-card" data-prompt="Suggest a good phone under ₹30,000 for daily use">
+            <span class="prompt-icon">📱</span>
+            <span class="prompt-text">Best phone under ₹30K?</span>
+          </button>
+          <button class="prompt-card" data-prompt="I need running shoes under ₹10,000">
+            <span class="prompt-icon">👟</span>
+            <span class="prompt-text">Running shoes under ₹10K</span>
+          </button>
+          <button class="prompt-card" data-prompt="Compare the best noise-cancelling headphones">
+            <span class="prompt-icon">🎧</span>
+            <span class="prompt-text">Best ANC headphones?</span>
+          </button>
+          <button class="prompt-card" data-prompt="Suggest a gaming laptop under ₹1,00,000">
+            <span class="prompt-icon">💻</span>
+            <span class="prompt-text">Gaming laptop under ₹1L</span>
+          </button>
+          <button class="prompt-card" data-prompt="What are some good kitchen appliances for a new home?">
+            <span class="prompt-icon">🏠</span>
+            <span class="prompt-text">Kitchen appliances</span>
+          </button>
+          <button class="prompt-card" data-prompt="I need a budget smartwatch with health tracking">
+            <span class="prompt-icon">⌚</span>
+            <span class="prompt-text">Budget smartwatch</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chat Messages -->
+    <div class="messages-wrapper" id="messages-wrapper">
+      <div class="messages" id="messages"></div>
+    </div>
+
+  </main>
+
+  <!-- ━━ Input Bar ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+  <footer class="input-bar" id="input-bar">
+    <div class="input-container">
+      <textarea
+        id="message-input"
+        placeholder="Ask me about any product..."
+        rows="1"
+        aria-label="Type your message"
+      ></textarea>
+      <button class="btn-send" id="btn-send" title="Send message" disabled>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="22" y1="2" x2="11" y2="13"></line>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+        </svg>
+      </button>
+    </div>
+    <p class="input-hint">Press <kbd>Enter</kbd> to send · <kbd>Shift+Enter</kbd> for new line</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
