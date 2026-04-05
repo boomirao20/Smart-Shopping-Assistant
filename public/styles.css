@@ -112,10 +112,10 @@ body::before {
 
 /* ── Custom Scrollbar ───────────────────────────────────────── */
 
-/* Firefox */
-* {
+/* Firefox scrollbar — apply only to scrollable containers */
+.chat-container {
   scrollbar-width: thin;
-  scrollbar-color: rgba(124, 58, 237, 0.35) rgba(15, 23, 42, 0.4);
+  scrollbar-color: rgba(124, 58, 237, 0.5) rgba(15, 23, 42, 0.4);
 }
 
 /* Webkit (Chrome, Edge, Safari) */
@@ -172,17 +172,16 @@ body::before {
 
 /* ── Header ─────────────────────────────────────────────────── */
 .app-header {
-  position: sticky;
-  top: 0;
   z-index: 100;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 12px 24px;
-  background: rgba(6, 8, 15, 0.85);
+  background: rgba(6, 8, 15, 0.95);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   border-bottom: 1px solid var(--border-subtle);
+  flex-shrink: 0;
 }
 
 .header-left {
@@ -685,11 +684,10 @@ body::before {
 
 /* ── Input Bar ──────────────────────────────────────────────── */
 .input-bar {
-  position: sticky;
-  bottom: 0;
   z-index: 100;
   padding: 12px 24px 16px;
-  background: linear-gradient(to top, var(--bg-primary) 60%, transparent);
+  background: var(--bg-primary);
+  flex-shrink: 0;
 }
 
 .input-container {
