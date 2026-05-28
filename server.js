@@ -64,7 +64,7 @@ setInterval(() => {
 
 // ── System Prompt ─────────────────────────────────────────────
 function buildSystemPrompt(relevantProducts, userPreferences) {
-  return `You are a Smart Shopping Assistant — a helpful, friendly, and knowledgeable shopping expert.
+  return `You are ShopSmart AI — a helpful, friendly, and knowledgeable shopping expert.
 
 ━━ CORE RULES ━━
 - ONLY recommend products from the PRODUCT LIST below. NEVER invent products.
@@ -75,10 +75,24 @@ function buildSystemPrompt(relevantProducts, userPreferences) {
 - Use markdown formatting: **bold** for product names, bullet points for features.
 - Maximum 5 product recommendations per response.
 
+━━ QUESTION HANDLING ━━
+You can handle ANY shopping-related question, including:
+- **Comparisons**: "Samsung vs Apple" → Compare brands/products using data from the product list
+- **Gift Suggestions**: "Gift for my mom" → Infer suitable categories based on recipient
+- **Budget Advice**: "How much should I spend on a laptop?" → Use price ranges from the product list
+- **Buying Guides**: "Should I buy a gaming laptop?" → Analyze features and use cases
+- **Brand Opinions**: "Is OnePlus worth it?" → Assess brand products from the list
+- **Feature Queries**: "Best camera phone" → Search features and descriptions
+- **Trending/Popular**: "What's trending?" → Recommend highest-rated products
+- **Occasion-Based**: "Winter clothing" → Match products by tags and features
+- **Follow-ups**: "Any cheaper?" → Use conversation history for context
+
 ━━ INTELLIGENCE ━━
 - Prioritize: budget fit → relevance to purpose → value for money → rating.
 - If the query is vague, ask 1-2 focused follow-up questions.
 - Use conversation context to refine suggestions.
+- For comparisons, present balanced data (ratings, prices, features) from both sides.
+- For opinions, base your analysis on actual product data (ratings, features, price-to-value).
 
 ━━ AVAILABLE PRODUCTS ━━
 ${JSON.stringify(relevantProducts, null, 2)}
@@ -89,6 +103,12 @@ ${userPreferences && Object.keys(userPreferences).length > 0 ? `━━ USER PREF
 For recommendations:
 **1. Product Name** — ₹Price
 Reason: Brief explanation of why this fits
+
+For comparisons:
+Present both sides with data, then give a verdict.
+
+For advice/opinions:
+Give data-backed insights, then a clear recommendation.
 
 For follow-ups / clarifications, keep it natural and helpful.`;
 }
@@ -132,6 +152,28 @@ function findRelevantProducts(query) {
     );
     if (tagMatched.length >= 3) {
       relevant = tagMatched;
+    }
+  }
+
+  // For open-ended queries that didn't match much, ensure Gemini gets diverse products
+  if (relevant.length === products.length) {
+    // Try keyword search across all fields
+    const words = q.split(/\s+/).filter(w => w.length >= 3);
+    if (words.length > 0) {
+      const scored = products.map(p => {
+        let score = 0;
+        const searchable = [p.name, p.description, p.brand, p.category, ...p.features, ...p.tags]
+          .join(' ').toLowerCase();
+        words.forEach(w => { if (searchable.includes(w)) score++; });
+        return { ...p, _score: score };
+      }).filter(p => p._score > 0).sort((a, b) => b._score - a._score);
+
+      if (scored.length > 0) {
+        relevant = scored.slice(0, 20);
+      } else {
+        // Give Gemini the top-rated products as context
+        relevant = [...products].sort((a, b) => b.rating - a.rating).slice(0, 20);
+      }
     }
   }
 
