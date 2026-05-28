@@ -1,6 +1,6 @@
 # 🛍️ ShopSmart AI — Smart Shopping Assistant
 
-An AI-powered shopping assistant chatbot that helps users discover, compare, and choose the best products through natural, friendly conversation.
+An AI-powered shopping assistant chatbot that helps users discover, compare, and choose the best products through natural, friendly conversation. Ask it **anything** — product recommendations, brand comparisons, gift ideas, budget advice, buying guides, or what's trending — and get intelligent, data-driven answers.
 
 ![ShopSmart AI](https://img.shields.io/badge/ShopSmart-AI-7c3aed?style=for-the-badge&logo=robot&logoColor=white)
 ![Node.js](https://img.shields.io/badge/Node.js-18+-339933?style=for-the-badge&logo=node.js&logoColor=white)
@@ -14,31 +14,21 @@ An AI-powered shopping assistant chatbot that helps users discover, compare, and
 | Feature | Description |
 |---------|-------------|
 | 🤖 **AI Chat** | Google Gemini-powered conversational product recommendations |
-| ⚙️ **Smart Fallback Engine** | Local engine with keyword matching, conversational understanding, and fuzzy text search |
-| 💬 **Conversation Memory** | Per-session chat history for context-aware suggestions |
-| 🏷️ **Category Browsing** | Quick-filter across 13 product categories |
-| 💰 **Budget-Aware** | Extracts price constraints from natural language (e.g., "under ₹30K") |
-| 🔍 **Smart Intent Detection** | Understands product type, brand, purpose, and preferences |
-| 🗣️ **Conversational Responses** | Handles greetings, thanks, help requests, comparisons, and general questions |
-| 🔎 **Fuzzy Search** | Finds products even with non-standard queries by searching across all product fields |
+| 🧠 **Smart Question Answering** | Handles **unseen questions** — comparisons, gift ideas, budget advice, buying guides, opinions, trending, and more |
+| ⚙️ **Intelligent Fallback Engine** | Local engine with knowledge base, synonym matching, question classification, and data-driven answer generation |
+| 💬 **Conversation Memory** | Per-session chat history with context-aware follow-ups ("any cheaper?" remembers the last category) |
+| 🔄 **Brand Comparisons** | "Samsung vs Apple?" — auto-generates comparison with ratings, prices, and verdicts |
+| 🎁 **Gift Suggestions** | "Gift for my mom" — infers recipient-appropriate categories and recommends |
+| 💰 **Budget Intelligence** | Extracts budgets from natural language AND gives budget tier breakdowns per category |
+| 📋 **Buying Guides** | "Should I buy a gaming laptop?" — category-specific tips and top picks |
+| 🏷️ **Brand Analysis** | "Is OnePlus worth it?" — data-driven brand opinions with ratings and verdicts |
+| 🔥 **Trending & Popular** | "What's trending?" — shows highest-rated products |
+| 🔍 **Synonym-Aware Search** | Understands "affordable" = "cheap" = "budget" = "economical" via 20 synonym groups |
 | 📱 **Responsive Design** | Works seamlessly on mobile and desktop |
 | 🎨 **Premium UI** | Dark glassmorphism theme with smooth animations and custom scrollbar |
 
 ---
 
-## 🖼️ Screenshots
-
-### Welcome Page
-<p align="center">
-  <img src="docs/welcome.png" alt="Welcome Page" width="800">
-</p>
-
-### Product Recommendations
-<p align="center">
-  <img src="docs/recommendations.png" alt="Recommendations" width="800">
-</p>
-
----
 
 ## 🚀 Getting Started
 
@@ -96,7 +86,7 @@ An AI-powered shopping assistant chatbot that helps users discover, compare, and
 |-------|-----------|
 | **Backend** | Node.js, Express.js |
 | **AI Engine** | Google Gemini 2.0 Flash |
-| **Fallback Engine** | Custom keyword-matching + fuzzy search + conversational AI |
+| **Fallback Engine** | Custom knowledge-base + question classifier + synonym matching + fuzzy search |
 | **Frontend** | Vanilla HTML, CSS, JavaScript |
 | **Styling** | CSS with glassmorphism, gradients, animations, custom scrollbar |
 | **Typography** | Google Fonts (Inter) |
@@ -200,7 +190,7 @@ Health check endpoint.
 
 ## 📦 Product Categories
 
-The assistant covers **137 products** across **13 categories**:
+The assistant covers **137 products** across **14 categories**:
 
 | Category | Products | Price Range |
 |----------|----------|-------------|
@@ -227,17 +217,19 @@ The assistant covers **137 products** across **13 categories**:
 
 1. User sends a message
 2. Server extracts intent (category, budget, brand, purpose)
-3. Relevant products are filtered from the catalog
+3. Relevant products are filtered from the catalog (keyword scoring + tag matching)
 4. A structured prompt with product context + chat history is sent to Gemini
 5. Gemini generates a natural, conversational recommendation
 6. Response is returned with session context preserved
 
+The Gemini system prompt is enhanced to handle open-ended questions — comparisons, gift suggestions, budget advice, buying guides, brand opinions, feature queries, and trending — not just product recommendations.
+
 ### Without Gemini API (Local Fallback Mode)
 
-The local engine uses a **5-step query resolution pipeline** to ensure every question gets a meaningful answer:
+The local engine uses a **7-step query resolution pipeline** to ensure every question — even unseen ones — gets a meaningful, data-driven answer:
 
 ```
-① Conversational Handler → ② Product Detail Query → ③ Keyword Intent Match → ④ Fuzzy Text Search → ⑤ Clarification
+① Conversational Handler → ② Follow-Up Handler → ③ Product Detail Query → ④ Smart Question Answering → ⑤ Keyword Intent Match → ⑥ Fuzzy Text Search → ⑦ Smart Clarification
 ```
 
 #### ① Conversational Handler
@@ -247,16 +239,50 @@ Detects and responds to non-product queries:
 - **Help requests:** "what can you do", "help me", "who are you"
 - **Meta queries:** "cheapest product", "best rated", "most expensive", "how many products"
 - **Acknowledgments:** "ok", "cool", "great", "awesome"
-- **Comparisons:** "compare Samsung vs Apple" (finds matching products)
 
-#### ② Product Detail Query
-If the user mentions a specific product name (e.g., "tell me about iPhone 15 Pro Max"), returns detailed product info including price, brand, rating, description, and all features.
+#### ② Context-Aware Follow-Up Handler
+Understands follow-up messages using conversation history:
+- **"Any cheaper options?"** → Remembers the last category and shows affordable picks
+- **"What about Samsung?"** → Shows Samsung products in the last discussed category
+- **"More options"** → Excludes already-shown products and shows new ones
+- **"Something more premium"** → Shows higher-priced alternatives
 
-#### ③ Keyword Intent Matching
-The core recommendation engine. Extracts intent from the query:
-- **Category detection** — maps keywords to 13 categories
+#### ③ Product Detail Query
+If the user mentions a specific product name (e.g., "tell me about iPhone 15 Pro Max"), returns detailed product info including price, brand, rating, description, features, and similar alternatives.
+
+#### ④ Smart Question Answering (NEW)
+The **core intelligence layer** that handles unseen/open-ended questions. It classifies the question into one of **10 types** and generates data-driven answers using the auto-built knowledge base:
+
+| Question Type | Example | How It Answers |
+|---------------|---------|----------------|
+| 🔄 **Comparison** | "Samsung vs Apple phones?" | Compares brand stats (avg rating, price range, top picks) with a verdict |
+| 🎁 **Gift Suggestion** | "Gift for my mom under ₹5K" | Infers recipient → suitable categories → top-rated picks + gift tips |
+| 💰 **Budget Advice** | "How much to spend on a laptop?" | Shows price range, budget tiers (budget/mid/premium), and best value pick |
+| 🔥 **Trending** | "What's popular right now?" | Returns highest-rated products globally or per category |
+| 📸 **Feature Query** | "Best camera phone under ₹50K" | Scores products by feature-keyword matches in descriptions/tags |
+| 📋 **Buying Guide** | "Should I buy a gaming laptop?" | Category-specific tips + brand analysis + top 3 picks |
+| 🏷️ **Brand Rec** | "Best brand for headphones?" | Ranks brands by avg rating within category with medal icons |
+| 📝 **Opinion** | "Is OnePlus worth buying?" | Brand data analysis, pros listing, alternatives, and a verdict |
+| 🎯 **Audience** | "Products for a 10-year-old" | Age/audience-aware category selection |
+| 🌟 **Occasion** | "Suggest winter clothing" | Tag-based matching for seasons, events, and use cases |
+
+**Under the hood:** At startup, the engine auto-generates a **Knowledge Base** from the product catalog containing:
+- Category stats (price ranges, avg price, avg rating, top brands, best value)
+- Brand stats (categories, ratings, price ranges, product counts)
+- Tag index and feature index for fast lookups
+- Top-rated and best-value product rankings
+
+**Synonym Dictionary:** 20 synonym groups ensure semantic matching:
+- "affordable" = "cheap" = "budget" = "economical" = "pocket-friendly"
+- "premium" = "luxury" = "expensive" = "high-end" = "flagship"
+- "kids" = "children" = "child" = "toddler" = "baby"
+- And 17 more groups...
+
+#### ⑤ Keyword Intent Matching
+The standard recommendation engine. Extracts intent from the query:
+- **Category detection** — maps keywords to 14 categories (including generic terms like "shoes" → all shoe categories)
 - **Budget extraction** — parses "under ₹30K", "below Rs 20000", "budget 50k" etc.
-- **Brand matching** — detects 40+ brands from the product catalog
+- **Brand matching** — detects 76+ brands from the product catalog
 - **Purpose tagging** — identifies use cases like gaming, running, office, travel
 
 Products are scored based on:
@@ -268,8 +294,8 @@ Products are scored based on:
 | Purpose/tag match | +5 each | Per matching tag |
 | Rating bonus | +rating × 2 | Higher-rated products preferred |
 
-#### ④ Fuzzy Text Search
-If keyword matching doesn't find results, the engine performs a full-text search across **all product fields** — name, description, brand, category, features, and tags. Stop words are filtered out, and results are scored by match quality:
+#### ⑥ Fuzzy Text Search (Synonym-Aware)
+If keyword matching doesn't find results, the engine performs a **synonym-expanded** full-text search across **all product fields** — name, description, brand, category, features, and tags:
 
 | Match Location | Priority Score |
 |---------------|---------------|
@@ -280,10 +306,10 @@ If keyword matching doesn't find results, the engine performs a full-text search
 | Features | +6 |
 | Description | +4 |
 
-This allows queries like "waterproof", "OLED", "cotton", "wireless charging" to find relevant products even without matching a predefined category.
+This allows queries like "waterproof", "OLED", "cotton", "wireless charging", or even synonyms like "pocket-friendly" to find relevant products.
 
-#### ⑤ Clarification (Last Resort)
-Only if all previous steps fail, the engine shows a helpful message listing all available categories with example queries.
+#### ⑦ Smart Clarification (Last Resort)
+Instead of a generic fallback, the engine detects **partial context** (brand, category, or budget mentioned) and asks **targeted** follow-up questions. Only if nothing is detected does it show the full category listing with examples.
 
 ---
 
@@ -297,7 +323,7 @@ Only if all previous steps fail, the engine shows a helpful message listing all 
 - **Engine badge** — shows whether Gemini AI or Local Engine answered
 - **Responsive layout** — adapts to mobile, tablet, and desktop
 - **Auto-resize input** — textarea grows as you type
-- **Quick prompts** — one-click starter questions
+- **Quick prompts** — one-click starter questions (comparisons, gifts, trending)
 - **Category chips** — quick browse by category
 
 ---
